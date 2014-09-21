@@ -140,8 +140,8 @@ function scan_file(ta,the_file)
 				num++;
 				if(num==n_workers)
 				{
-					index_ok();
 					terminate_workers();
+					index_ok();					
 				}
 			  };
 
