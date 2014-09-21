@@ -44,7 +44,7 @@ if (!localStorage["idb_version"])
  var dbrequest = indexedDB.open(dbName,localStorage["idb_version"]++);
 	dbrequest.onerror = function(event) 
 	{
-		console.log("Problems opening data base");
+		console.log("Problems opening data base: " + event.target.errorCode);
 	};
 	dbrequest.onblocked = function(event) {
 	 console.log("DB is blocked");
