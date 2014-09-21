@@ -41,9 +41,11 @@ if (!localStorage["idb_version"])
 	dbrequest.onerror = function(event) 
 	{
 		console.log("Problems opening data base: " + event.target.errorCode);
+		document.querySelector('#error').textContent =""Problems opening data base: " + event.target.errorCode";
 	};
 	dbrequest.onblocked = function(event) {
 	 console.log("DB is blocked");
+		document.querySelector('#error').textContent ="The database is blocked<br>Close the map if it is open";
 	};
 
 dbrequest.onupgradeneeded = function(event) {
