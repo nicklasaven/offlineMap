@@ -22,14 +22,14 @@
 
 //Open Streetmap karta fr√•n Mapquest	http://otile1.mqcdn.com/tiles/1.0.0/osm/${z}/${x}/${y}.png
 	var	os =	L.tileLayer('http://otile1.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png', {
-		maxZoom: 18,
+		maxZoom: 11,
 		attribution: 'Map data <a href="http://openstreetmap.org">© OpenStreetMap contributors</a>Tiles Courtesy of <a href="http://www.mapquest.com/" target="_blank">MapQuest</a> <img src="http://developer.mapquest.com/content/osm/mq_logo.png">'
 	});
 
 overlays={"OpenStreetMap":os};
 	var	map = L.map('map', {
 	center: [60.66, 11.74],
-	zoom: 12,
+	zoom: 11,
 	layers: [os]
 	});
 var last_zoom=0;	
