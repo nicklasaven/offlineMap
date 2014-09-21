@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+  	<meta charset="utf8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	 <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
+	 <link rel="stylesheet" href="main.css" />
+</head>
+<body>
+<input type="file" id="file_sel">
+<output id="error"></output>
+<input type ="button" id="knappen" onclick="go()" Value = "GO" style="background-color:#00bb00"><br>
+<div id="map" ></div>
+<script>L_PREFER_CANVAS=true;</script>
+<script src="rbush.js"></script>
+<script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+<script src="http://www.mapquestapi.com/sdk/js/v7.0.s/mqa.toolkit.js?key=Fmjtd%7Cluur250z2q%2Crs%3Do5-9w2lu0"></script>
+
+<script src="leafletStyling.js"></script>
+<script src="twkb.js"></script>
+<script>
+
+//Open Streetmap karta fr√•n Mapquest	http://otile1.mqcdn.com/tiles/1.0.0/osm/${z}/${x}/${y}.png
+	var	os =	L.tileLayer('http://otile1.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png', {
+		maxZoom: 18,
+		attribution: 'Map data <a href="http://openstreetmap.org">© OpenStreetMap contributors</a>Tiles Courtesy of <a href="http://www.mapquest.com/" target="_blank">MapQuest</a> <img src="http://developer.mapquest.com/content/osm/mq_logo.png">'
+	});
+
+overlays={"OpenStreetMap":os};
+	var	map = L.map('map', {
+	center: [60.66, 11.74],
+	zoom: 12,
+	layers: [os]
+	});
+var last_zoom=0;	
+function index_ok(){
+	document.getElementById("knappen").style.background="#00bb00";
+	map.on('dragend', draw_map);
+	map.on('zoomend', draw_map);
+	}
+	
+/*	draw_map_z=function(e){
+	var the_zoom=this.getZoom();
+	if(the_zoom>12&&last_zoom<12||the_zoom<last_zoom){
+	var b = this.getBounds();
+		search_bbox("["+b.toBBoxString()+"]");
+	last_zoom=the_zoom;
+	}
+	}*/
+	draw_map= function(e) {
+	if(this.getZoom()>12){
+	var b = this.getBounds();
+		search_bbox("["+b.toBBoxString()+"]");
+	//last_zoom=the_zoom;		
+	}	
+}
+kartan= L.layerGroup();
+kartan.addTo(map);
+L.control.layers({},overlays).addTo(map);	
+</script>
+</body>
+</html>

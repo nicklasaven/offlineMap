@@ -1,0 +1,25 @@
+
+		body {
+			padding: 0;
+			margin: 0;
+		}
+		html, body 
+		{
+			height: 100%;
+			z-index:1;
+		}
+		#map {
+			height: 90%;
+			z-index:1;}
+		.info {
+			padding: 6px 4px;
+			font: 10px/12px Arial, Helvetica, sans-serif;
+			background: white;
+			background: rgba(255,255,255,0.8);
+			box-shadow: 0 0 15px rgba(0,0,0,0.2);
+			border-radius: 3px;
+		}
+		.info h4 {
+			margin: 0 0 5px;
+			color: #777;
+		}
