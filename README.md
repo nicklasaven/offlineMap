@@ -31,6 +31,7 @@ What will happen now is that a spatial index is created. When that is finnished 
 Next step to do the styling. The attributes that gives the styling is stored in Indexeddb. I have struggled a lot with that beast and some problems is still there.
 
 But to try it do:
+
 1.  Close the page with the map, otherwise the indexeddb will ba blocked and cannot be written too
 2.  Download the attribute data: http://sandbox.jordogskog.no/offlineMap/twkbFiles/hedmark.csv
 3.  Go to http://sandbox.jordogskog.no/offlineMap/load_attributes.htm
