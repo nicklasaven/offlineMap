@@ -19,11 +19,13 @@ Sometimes there is some strange behavior that I think is related to opening the 
 It is also only tested in Chrome.
 
 
-So, let's go:
+So, let's go, first totally without styling:
 
-1. Download the example twkb-file "hedmark.twkb" http://sandbox.jordogskog.no/twkbFiles/hedmark.twkb
-2. Download the attribute file (only for styling) http://sandbox.jordogskog.no/twkbFiles/hedmark.csv
+1. Download the example twkb-file "hedmark.twkb" http://sandbox.jordogskog.no/offlineMap/twkbFiles/hedmark.twkb
+2. Go to http://sandbox.jordogskog.no/offlineMap
+3. Choose hedmark.twkb in the file selector in the top
+4. press "Go"
 
-Note: It is important that the two files above keep the same name except for the extension
+What will happen now is that a spatial index is created. When that is finnished the map will be drawn by reading the geoemtries from the twkb-file
 
-3. Go to 
+
