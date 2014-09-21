@@ -1,21 +1,15 @@
 <!DOCTYPE html>
 <html>
-<head>
-  	<meta charset="utf8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-</head>
 <body>
 <input type="file" id="file_sel" multiple onchange="go(this.files)">
 <output id="error"></output>
-<div id="text"></div>
+<output id="messeges"></output>
 <script>
-
 const dbName = "the_db";
 var db;
 var layers=[];
 var n;
-var num;
 var workers=[];
 if (!localStorage["idb_version"])
 {
@@ -38,7 +32,9 @@ if (!localStorage["idb_version"])
 
   function go(the_files)
   {
-  var n_workers;
+  var n_workers=0;
+  var num=0;
+  var db;
  //var the_files = evt.target.files;
  
  var dbrequest = indexedDB.open(dbName,localStorage["idb_version"]++);
@@ -71,27 +67,29 @@ for (var f=0,len=the_files.length;f<len;f++)
 }
   
   	dbrequest.onsuccess = function(event) {
-	for (var f=0,len=layers.length;f<len;f++)
-	{
-	 var worker = new Worker('attributes_worker.js');
-				 
-				worker.onmessage = function(e) {				
-				num++;
-				if(num==n_workers)
-					console.log("Finnished");
-					
-				  };
+		for (var f=0,len=layers.length;f<len;f++)
+		{
+			var worker = new Worker('attributes_worker.js');
 
-				  worker.onerror = function(e) {
-				    document.querySelector('#error').textContent = [
-					'ERROR: Line ', e.lineno, ' in ', e.filename, ': ', e.message].join('');
-				  };
-	worker.postMessage(layers[f]);
-	}
-	
-	
-	 console.log("Yes, it worked");
+			worker.onmessage = function(e) {				
+			num++;
+			if(num==n_workers)
+				document.querySelector('#messeges').textContent = [
+				'Finnished loading ',e.data.n,' rows'].join('');
+				db.close();
+			};
+
+			worker.onerror = function(e) {
+				document.querySelector('#error').textContent = [
+				'ERROR: Line ', e.lineno, ' in ', e.filename, ': ', e.message].join('');
+			};
+			n_workers++;
+			worker.postMessage(layers[f]);
+		}
+		
 	};
   }
    
   </script>
+  </body>
+  </html>

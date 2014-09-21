@@ -4,12 +4,12 @@ var db;
 
 function add_attributes(the_name, the_data)
 {
-
+var n=0;
 	    // Store values in the newly created objectStore.
 	    var attributeStore = db.transaction([the_name], "readwrite").objectStore(the_name);
 	    for (var i=0,len =the_data.length;i<len;i++)
 	    {
-	      attributeStore.put(the_data[i]);
+	      attributeStore.put(the_data[i]).onsuccess=function(e){if (++n==len) postMessage({"n":n});};
 	    }
 }
 
@@ -54,7 +54,7 @@ var dbrequest = indexedDB.open(dbName);
    var reader = new FileReaderSync();
  processData(reader.readAsText(the_file),the_name);
 		
-		postMessage("klart");
+		
 	self.close;
 	 }
 }, false);
