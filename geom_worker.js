@@ -1,8 +1,4 @@
 
-
-importScripts('simplify.js');
-	
-
 function ReadVarInt64(ta_struct)
 {
     cursor=ta_struct.cursor;
