@@ -28,4 +28,17 @@ So, let's go, first totally without styling:
 
 What will happen now is that a spatial index is created. When that is finnished the map will be drawn by reading the geoemtries from the twkb-file
 
+Next step to do the styling. The attributes that gives the styling is stored in Indexeddb. I have struggled a lot with that beast and some problems is still there.
+
+But to try it do:
+
+1.  Close the page with the map, otherwise the indexeddb will ba blocked and cannot be written too
+2.  Download the attribute data: http://sandbox.jordogskog.no/offlineMap/twkbFiles/hedmark.csv
+3.  Go to http://sandbox.jordogskog.no/offlineMap/load_attributes.htm
+4.  Choose hedmark.csv and the loading will start. It is very slow, maybe 15 seconds
+
+Now the data is loaded and you will get some simple styling on the map. But for some reason I get trouble if I go directly to the map or reload the load_attribute page. Then something goes crayzy and I have to close the page.
+
+
+
 
