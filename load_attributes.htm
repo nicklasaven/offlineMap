@@ -7,90 +7,66 @@
 <output id="messeges"></output>
 <script>
 const dbName = "the_db";
-var db;
 var layers=[];
 var n;
 var workers=[];
+
 if (!localStorage["idb_version"])
 {
 	localStorage["idb_version"]=1;
 
-
 	var req = indexedDB.deleteDatabase(dbName);
-	req.onsuccess = function () {
-	    console.log("Deleted database successfully");
+	req.onsuccess = function () 
+	{
+		document.querySelector('#error').textContent ="Deleted old database successfully";
 	};
 	req.onerror = function () {
-	    console.log("Couldn't delete database");
+	document.querySelector('#error').textContent ="Couldn't delete database";
 	}
 	req.onblocked = function () {
-	    console.log("Couldn't delete database due to the operation being blocked")
+	document.querySelector('#error').textContent ="Couldn't delete database due to the operation being blocked, Probably the map window is also open";
 	}
 }
+var next_version=localStorage["idb_version"];
 
 
-
-  function go(the_files)
-  {
-  var n_workers=0;
-  var num=0;
-  var db;
- //var the_files = evt.target.files;
- 
- var dbrequest = indexedDB.open(dbName,localStorage["idb_version"]++);
-	dbrequest.onerror = function(event) 
-	{
-		console.log("Problems opening data base: " + event.target.errorCode);
-		document.querySelector('#error').textContent ="Problems opening data base: " + event.target.errorCode;
-	};
-	dbrequest.onblocked = function(event) {
-	 console.log("DB is blocked");
-		document.querySelector('#error').textContent ="The database is blocked<br>Close the map if it is open";
-	};
-
-dbrequest.onupgradeneeded = function(event) {
-	 console.log("Ok, lets upgrade");
-	 db = event.target.result;
-
-for (var f=0,len=the_files.length;f<len;f++)
-
+function go(the_files)
 {
-	var the_name = the_files[f].name.split(".")[0];
-	layers.push({"the_name":the_name, "the_file":the_files[f]});
-	if(db.objectStoreNames.contains(the_name)) 
-		db.deleteObjectStore(the_name);
-		
-		
-	var objectStore = db.createObjectStore(the_name, { keyPath: "gid" });  
-		objectStore.transaction.oncomplete=function (e) {		
-		console.log("Ok, we are here");
-		}
-}	
+document.querySelector('#messeges').textContent ="Work has started ....";
+var n_workers=0;
+var num=0;
+var worker = new Worker('attributes_worker.js');
+
+worker.onmessage = function(e) {				
+	num++;
+	if(e.data.type=="error")
+	{
+		document.querySelector('#error').textContent = [
+		'ERROR: ',e.data.msg].join('');
+	}
+	else if(e.data.type=="finnished")
+	{
+		document.querySelector('#messeges').textContent = [
+		'Messege: ',e.data.msg].join('');
+	}
+	else if(e.data.type=="version")
+	{
+		next_version=localStorage["idb_version"] = e.data.next_version;
+	}
+	else
+	{
+		document.querySelector('#messeges').textContent = [
+		'Messege: ',e.data.msg].join('');
+	}
+};
+
+worker.onerror = function(e) {
+	document.querySelector('#error').textContent = [
+	'ERROR: Line ', e.lineno, ' in ', e.filename, ': ', e.message].join('');
+};
+n_workers++;
+worker.postMessage({"the_files":the_files,"next_version":next_version,"dbName":dbName});
 }
-  
-  	dbrequest.onsuccess = function(event) {
-		for (var f=0,len=layers.length;f<len;f++)
-		{
-			var worker = new Worker('attributes_worker.js');
-
-			worker.onmessage = function(e) {				
-			num++;
-			if(num==n_workers)
-				document.querySelector('#messeges').textContent = [
-				'Finnished loading ',e.data.n,' rows'].join('');
-				db.close();
-			};
-
-			worker.onerror = function(e) {
-				document.querySelector('#error').textContent = [
-				'ERROR: Line ', e.lineno, ' in ', e.filename, ': ', e.message].join('');
-			};
-			n_workers++;
-			worker.postMessage(layers[f]);
-		}
-		
-	};
-  }
    
   </script>
   </body>
