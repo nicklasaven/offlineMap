@@ -5,7 +5,7 @@ Some code to help creating a true offline map
 
 here is a collection of scripts to handle large files of twkb in the client through File API.
 
-It is still a lot of bottlenecks that can be removed and some memory issues that limits possible file sizes when mamory is a limit.
+It is still a lot of bottlenecks that can be removed and some memory issues that limits possible file sizes when memory is a limit.
 
 ## How to use it
 
@@ -34,6 +34,11 @@ What will happen now is that a spatial index is created. When that is finnished 
 
 Now the data is loaded and you will get some simple styling on the map next time you open it (and loads the index again)
 
+## To Create TWKB-files
+
+Install the latest PostGIS trunk version. It must be at least r12908.
+Then modifie the php-script in 
+https://github.com/nicklasaven/offlineMap/blob/master/twkbCreate/writeTWKB.php
 
 
 
