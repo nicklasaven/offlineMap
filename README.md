@@ -20,7 +20,8 @@ It is also only tested in Chrome.
 
 So, let's go, first totally without styling:
 
-1. Download the example twkb-file "hedmark.twkb" http://sandbox.jordogskog.no/offlineMap/twkbFiles/hedmark.twkb
+1. Download the example twkb-file "hedmark.twkb" ~46mb http://sandbox.jordogskog.no/offlineMap/twkbFiles/hedmark.twkb
+   There is also am example file with all roads in Norway http://sandbox.jordogskog.no/offlineMap/twkbFiles/n50roads.twkb
 2. Go to http://sandbox.jordogskog.no/offlineMap
 3. Choose hedmark.twkb in the file selector in the top
 4. press "Go"
