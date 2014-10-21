@@ -35,25 +35,7 @@ function read_pa(ta_struct)
 	var ndims=ta_struct.ndims;
 	var factor=ta_struct.factor;
 	var npoints=ta_struct.npoints;
-	var pl=ta_struct.transform_values.pixel_length;
-	var min_x=ta_struct.transform_values.min_x;
-	var min_y=ta_struct.transform_values.min_y;
-	var sh=ta_struct.transform_values.screen_height;
-	
 	ta_struct.coords=[];
-	ta_struct.coords[0]=[];
-/*	var c=0;
-	for (i =0;i<(npoints);i++)
-	{
-
-			ta_struct.refpoint[0]+=ReadVarSInt64(ta_struct);
-			ta_struct.coords[c++]=ta_struct.refpoint[0]/factor;
-		
-			ta_struct.refpoint[1]+=ReadVarSInt64(ta_struct);
-			ta_struct.coords[c++]=ta_struct.refpoint[1]/factor;	
-
-	}
-	*/
 	
 for (i =0;i<(npoints);i++)
 {
@@ -69,25 +51,27 @@ for (i =0;i<(npoints);i++)
 
 
 
-function parse_point(ta_struct,layer)
+function parse_point(ta_struct,layer,render)
 {	
 	if(ta_struct.id)
 		id=ReadVarSInt64(ta_struct);
 	ta_struct.npoints=1;
 	read_pa(ta_struct);
-	self.postMessage({"coords":ta_struct.coords,"type":"point","layer":layer});	
-	self.postMessage({"type":"counter"});
+	if(render)
+		self.postMessage({"coords":ta_struct.coords,"type":"point","layer":layer});	
+	self.postMessage({"type":"counter","npoints":ta_struct.npoints});
 }
-function parse_line(ta_struct,layer)
+function parse_line(ta_struct,layer,render)
 {		
 	if(ta_struct.id)
 		id=ReadVarSInt64(ta_struct);	
 	ta_struct.npoints=ReadVarInt64(ta_struct);
 	read_pa(ta_struct);	
-	self.postMessage({"id":id,"coords":ta_struct.coords,"type":"line","layer":layer});
-	self.postMessage({"type":"counter"});
+	if(render)
+		self.postMessage({"id":id,"coords":ta_struct.coords,"type":"line","layer":layer});
+	self.postMessage({"type":"counter","npoints":ta_struct.npoints});
 }
-function parse_polygon(ta_struct,layer)
+function parse_polygon(ta_struct,layer,render)
 {
 
 	if(ta_struct.id)
@@ -100,11 +84,12 @@ function parse_polygon(ta_struct,layer)
 		read_pa(ta_struct);
 		rings.push(ta_struct.coords);
 	}
-	self.postMessage({"id":id,"coords":rings,"type":"polygon","layer":layer});	
-	self.postMessage({"type":"counter"});
+	if(render)
+		self.postMessage({"id":id,"coords":rings,"type":"polygon","layer":layer});	
+	self.postMessage({"type":"counter","npoints":ta_struct.npoints});
 }
 	
-function parse_multipoint(ta_struct,layer)
+function parse_multipoint(ta_struct,layer,render)
 {
 	if(ta_struct.id)
 		id=ReadVarSInt64(ta_struct);		
@@ -112,52 +97,59 @@ function parse_multipoint(ta_struct,layer)
 	ta_struct.npoints=ReadVarInt64(ta_struct);
 		
 	read_pa(ta_struct);
-	self.postMessage({"coords":ta_struct.coords,"type":"multipoint","layer":layer});
+	if(render)
+		self.postMessage({"id":id,"coords":ta_struct.coords,"type":"multipoint","layer":layer});
+	self.postMessage({"type":"counter","npoints":ta_struct.npoints});
 }	
 
 	
-function parse_multiline(ta_struct,layer)
+function parse_multiline(ta_struct,layer,render)
 {	
+	var npoints;
 	if(ta_struct.id)
 		id=ReadVarSInt64(ta_struct);				
 	
-	ngeoms=ReadVarInt64(ta_struct);
-	
-	for (geom=0;ring<ngeoms;geom++)
-	{		
-		ta_struct.npoints=ReadVarInt64(ta_struct);
-		read_pa(ta_struct);
-		self.postMessage({"coords":ta_struct.coords,"type":"line","layer":layer});
-	}
-	self.postMessage({"type":"counter"});
-}	
-	
-	
-function parse_multipolygon(ta_struct,layer)
-{
-	
-	if(ta_struct.id)
-		id=ReadVarSInt64(ta_struct);			
-
-	ngeoms=ReadVarInt64(ta_struct);
+	var ngeoms=ReadVarInt64(ta_struct);
 	
 	for (geom=0;geom<ngeoms;geom++)
 	{		
-		nrings=ReadVarInt64(ta_struct);
+		ta_struct.npoints=ReadVarInt64(ta_struct);
+		npoints+=ta_struct.npoints;
+		read_pa(ta_struct);
+		if(render)
+			self.postMessage({"id":id,"coords":ta_struct.coords,"type":"line","layer":layer});
+	}
+	self.postMessage({"type":"counter","npoints":ta_struct.npoints});
+}	
+	
+	
+function parse_multipolygon(ta_struct,layer,render)
+{
+	var npoints;
+	if(ta_struct.id)
+		id=ReadVarSInt64(ta_struct);			
+
+	var ngeoms=ReadVarInt64(ta_struct);
+	
+	for (geom=0;geom<ngeoms;geom++)
+	{		
+		var nrings=ReadVarInt64(ta_struct);
 		var rings=[];
 		for (ring=0;ring<nrings;ring++)
 		{
 			ta_struct.npoints=ReadVarInt64(ta_struct);
+			npoints+=ta_struct.npoints;
 			read_pa(ta_struct);
 			rings.push(ta_struct.coords);
 
 		}
-		self.postMessage({"coords":rings,"type":"polygon","layer":layer});
+		if(render)
+			self.postMessage({"id":id,"coords":rings,"type":"polygon","layer":layer});
 	}
-	self.postMessage({"type":"counter"});
+	self.postMessage({"type":"counter","npoints":ta_struct.npoints});
 }	
 
-function parse_agg_point(ta_struct,layer)
+function parse_agg_point(ta_struct,layer,render)
 {
 	var n_geometries=ReadVarInt64(ta_struct);
 	for (t=0;t<n_geometries;t++)
@@ -165,7 +157,7 @@ function parse_agg_point(ta_struct,layer)
 		parse_point(ta_struct,layer);		
 	}
 }	
-function parse_agg_line(ta_struct,layer)
+function parse_agg_line(ta_struct,layer,render)
 {
 	var n_geometries=ReadVarInt64(ta_struct);	
 	for (t=0;t<n_geometries;t++)
@@ -173,7 +165,7 @@ function parse_agg_line(ta_struct,layer)
 		parse_line(ta_struct,layer);
 	}
 }	
-function parse_agg_polygon(ta_struct,layer)
+function parse_agg_polygon(ta_struct,layer,render)
 {
 	var n_geometries=ReadVarInt64(ta_struct);
 	for (t=0;t<n_geometries;t++)
@@ -183,7 +175,7 @@ function parse_agg_polygon(ta_struct,layer)
 }	
 
 
-function parse_binary(ta,hit_list,transform_values,layer)
+function parse_binary(ta,hit_list,transform_values,layer,render)
 {
 
 	//The length of the whole binary data bulk
@@ -240,54 +232,54 @@ function parse_binary(ta,hit_list,transform_values,layer)
 		/*If POINT*/			
 		if(typ==1)
 		{
-			parse_point(ta_struct,layer);
+			parse_point(ta_struct,layer,render);
 			n++			;
 		}			
 		/*if LINESTRING*/
 		else if(typ==2)
 		{
-			parse_line(ta_struct,layer);
+			parse_line(ta_struct,layer,render);
 			n++;
 		}		
 		/*if POLYGON*/
 		else if(typ==3)
 		{	
-			parse_polygon(ta_struct,layer);
+			parse_polygon(ta_struct,layer,render);
 			n++;
 		}		
 		/*if MultiPOINT*/
 		else if(typ==4)
 		{
-			parse_multipoint(ta_struct,layer);
+			parse_multipoint(ta_struct,layer,render);
 			n++;
 		}			
 		/*if MultiLINESTRING*/
 		else if(typ==5)
 		{
-			parse_multiline(ta_struct,layer);
+			parse_multiline(ta_struct,layer,render);
 			n++;
 		}		
 		/*if MultiPOLYGON*/
 		else if(typ==6)
 		{	
-			parse_multipolygon(ta_struct,layer);
+			parse_multipolygon(ta_struct,layer,render);
 			n++;
 		}
 		/*if aggregated POINT*/
 		else if(typ==21)
 		{
-			parse_agg_point(ta_struct,layer);
+			parse_agg_point(ta_struct,layer,render);
 		}	
 		
 		/*if aggregated LINESTRING*/
 		else if(typ==22)
 		{
-			parse_agg_line(ta_struct,layer);
+			parse_agg_line(ta_struct,layer,render);
 		}		
 		/*if aggregated POLYGON*/
 		else if(typ==23)
 		{	
-			parse_agg_polygon(ta_struct,layer);
+			parse_agg_polygon(ta_struct,layer,render);
 		}
 		
 	}
@@ -303,6 +295,7 @@ self.addEventListener('message', function(e) {
   var hit_list= e.data.hit_list;
 var chunk = e.data.chunk;
 var layer = e.data.layer;
+var render = e.data.render;
   var transform_values = e.data.transform_values;
 	var start=chunk[0];
 	var end=chunk[1];
@@ -313,7 +306,7 @@ var layer = e.data.layer;
 	
    var reader = new FileReaderSync();
 
-		parse_binary(new Uint8Array(reader.readAsArrayBuffer(the_file.slice(start, end))),hit_list,transform_values,layer);
+		parse_binary(new Uint8Array(reader.readAsArrayBuffer(the_file.slice(start, end))),hit_list,transform_values,layer,render);
 
 	delete blob;
 		self.close;

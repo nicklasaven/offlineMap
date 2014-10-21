@@ -9,7 +9,8 @@
 <body>
 <input type="file" id="file_sel">
 <output id="error"></output>
-<input type ="button" id="knappen" onclick="go()" Value = "GO" style="background-color:#00bb00"><br>
+<input type ="button" id="knappen" onclick="go()" Value = "GO" style="background-color:#00bb00"><span id="antal"></span><span id="tid"></span><br>
+<input type="radio"  name = "r"  id="render" value="1" checked> Render<input type="radio" name = "r" id="norender" value="0"> Don't render (You can switch off rendering to see timing of twkb parsing)
 <div id="map" ></div>
 <script>L_PREFER_CANVAS=true;</script>
 <script src="rbush.js"></script>
@@ -41,14 +42,6 @@ function index_ok(){
 	search_bbox("["+b.toBBoxString()+"]");
 	}
 	
-/*	draw_map_z=function(e){
-	var the_zoom=this.getZoom();
-	if(the_zoom>12&&last_zoom<12||the_zoom<last_zoom){
-	var b = this.getBounds();
-		search_bbox("["+b.toBBoxString()+"]");
-	last_zoom=the_zoom;
-	}
-	}*/
 	draw_map= function(e) {
 	if(this.getZoom()>12){
 	var b = this.getBounds();

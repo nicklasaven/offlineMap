@@ -95,7 +95,6 @@ ta is the binary data and the_file is a reference to the file.
 function scan_file(ta,the_file)
 {
 	var ta_struct={};
-	
 	ta_struct.ta=ta;
 	ta_struct.cursor=0;
 	var start_cursor=0;
@@ -164,8 +163,12 @@ function scan_file(ta,the_file)
 /*Here we get when the map is zoomed or panned if we are enough zoomed in*/
 function search_bbox( boxen)
 {
+	var render=0;
+	var use_new=0;
+	if(document.getElementById("render").checked)
+		render=1;
 	var norm_bbox = JSON.parse(boxen);
-	
+	var timing={};
 	/*This is for transforming to pixels, but here and now Leaflet takes care of that*/
 //	var pixel_length=(norm_bbox[2]-norm_bbox[0])/s_w ;
 	var pixel_length=0;
@@ -185,9 +188,12 @@ function search_bbox( boxen)
 		res.sort(function(a,b){return(a[4]-b[4])});
 		
 		var len=res.length;
-		
+		var c = len;
+		document.getElementById("antal").innerHTML="We have "+len+" geometries";
+		timing.start=new Date().getTime();
 		if(len>0)//If we had any hits.
 		{
+		var npoints=0;	
 		//Now we are going to read the file in chunks. It is for memory reasons
 			var hit_list=[];
 
@@ -213,13 +219,24 @@ function search_bbox( boxen)
 					
 					//send the parsing work to a web worker
 						var worker = webworkers.w[webworkers.n++] = new Worker('geom_worker.js');
+					
 					//When we get the coordinate list back from parsing...
 						worker.onmessage = function(e) {
-							if(e.data &&e.data.coords)
+							if(e.data.type=="counter")
+							{
+								npoints+=e.data.npoints;
+								if(--c==0)
+								{
+									timing.stop=new Date().getTime();
+									diff=timing.stop-timing.start;
+									document.getElementById("tid").innerHTML="Finnished in "+diff+" ms parsing "+npoints+ " vertexpoints in total";
+								}
+									
+							}
+							else if(e.data &&e.data.coords)
 							{
 								the_layer=e.data.layer;
 								var id=e.data.id.toString();
-								
 								//Check the id against the attribute table for styling
 								if(db.objectStoreNames.contains(the_layer))
 								{
@@ -272,7 +289,7 @@ function search_bbox( boxen)
 									console.log(e.data.log);
 						}						
 					
-					worker.postMessage({"the_file":layers[layer].the_file,"layer":layer,"chunk":chunk,"hit_list":hit_list,"transform_values":transform_values});
+					worker.postMessage({"the_file":layers[layer].the_file,"layer":layer,"chunk":chunk,"hit_list":hit_list,"transform_values":transform_values, "render":render});
 				
 				//if((r+1)<len)
 					chunk[0]=-1;
